@@ -1,0 +1,93 @@
+# Vendored copy of oar-ocr 0.8.1 (Apache-2.0, https://github.com/greatv/oar-ocr),
+# wired in through `[patch.crates-io]` in the workspace manifest.
+#
+# Derived from the normalized manifest published on crates.io. Trimmed to the
+# library target only: the upstream `[[example]]` targets and the
+# dev-dependencies that served them are dropped because `examples/` is not
+# vendored. Dependency versions and features are unchanged, so the resolved
+# graph is identical to the registry build — except that `oar-ocr-core` is
+# pinned to exactly the release these sources were published against. The
+# patches depend on its exact behaviour (patch 3 mirrors the recognizer's
+# 3200 px width cap), and a semver-compatible core release could change that
+# without anything failing to build.
+#
+# Local modifications are listed in PADDLEKNIFE_PATCHES.md. Drop this directory
+# (and the `[patch]` entry) once upstream ships equivalents.
+
+# Self-rooted: stops cargo from adopting an enclosing workspace when this
+# crate's own tests are run via `--manifest-path` (a git worktree of PaddleKnife
+# sits inside the main checkout, whose manifest would otherwise claim it).
+[workspace]
+
+[package]
+edition = "2024"
+rust-version = "1.95"
+name = "oar-ocr"
+version = "0.8.1"
+authors = ["Wang Xin <xinwang614@gmail.com>"]
+build = false
+autolib = false
+autobins = false
+autoexamples = false
+autotests = false
+autobenches = false
+description = "An Optical Character Recognition (OCR) and Document Layout Analysis library written in Rust."
+homepage = "https://github.com/greatv/oar-ocr"
+readme = "README.md"
+license = "Apache-2.0"
+repository = "https://github.com/greatv/oar-ocr"
+resolver = "2"
+publish = false
+
+[features]
+auto-download = ["oar-ocr-core/auto-download"]
+coreml = ["oar-ocr-core/coreml"]
+cuda = ["oar-ocr-core/cuda"]
+default = [
+    "download-binaries",
+    "simd",
+]
+directml = ["oar-ocr-core/directml"]
+download-binaries = ["oar-ocr-core/download-binaries"]
+openvino = ["oar-ocr-core/openvino"]
+simd = ["oar-ocr-core/simd"]
+tensorrt = ["oar-ocr-core/tensorrt"]
+webgpu = ["oar-ocr-core/webgpu"]
+
+[lib]
+name = "oar_ocr"
+path = "src/lib.rs"
+
+[dependencies.image]
+version = "0.25.6"
+
+[dependencies.imageproc]
+version = "0.27.0"
+
+[dependencies.oar-ocr-core]
+version = "=0.8.1"
+default-features = false
+
+[dependencies.oar-ocr-derive]
+version = "0.8.1"
+default-features = false
+
+[dependencies.rayon]
+version = "1.8"
+
+[dependencies.serde]
+version = "1.0"
+features = [
+    "derive",
+    "rc",
+]
+
+[dependencies.serde_json]
+version = "1.0"
+
+[dependencies.tracing]
+version = "0.1"
+
+[dependencies.tracing-subscriber]
+version = "0.3.20"
+features = ["env-filter"]

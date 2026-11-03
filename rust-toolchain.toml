@@ -1,0 +1,7 @@
+[toolchain]
+# Pinned to the release the workspace is built and tested with, so builds
+# don't float to whatever `stable` means on the day. The floor is
+# `rust-version` in Cargo.toml (1.95, set by oar-ocr 0.8).
+channel = "1.96.0"
+components = ["rustfmt", "clippy"]
+profile = "minimal"

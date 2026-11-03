@@ -1,0 +1,60 @@
+[workspace]
+resolver = "2"
+members = [
+    "crates/paddleknife-core",
+    "crates/paddleknife",
+]
+# The vendored oar-ocr is a patched third-party crate, not ours: keep it out of
+# the workspace so `cargo test` / `cargo clippy` and our lint table skip it.
+# Its own tests run with `cargo test --manifest-path vendor/oar-ocr/Cargo.toml`.
+exclude = ["vendor/oar-ocr"]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2021"
+# Floor set by oar-ocr 0.8, which is edition 2024 / rust-version 1.95.
+rust-version = "1.95"
+license = "AGPL-3.0-or-later"
+authors = ["Nicholas-EW"]
+
+[workspace.dependencies]
+anyhow = "1"
+thiserror = "1"
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter", "fmt"] }
+image = "0.25"
+clap = { version = "4", features = ["derive"] }
+# CLI progress reporting (per-page bar + ETA on long OCR runs).
+indicatif = "0.18"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+# Dev-only: scratch dirs for unit tests that stage placeholder files.
+tempfile = "3"
+# Dev-only: serialize pdfium-touching tests — pdfium's C bindings aren't
+# thread-safe; parallel test invocations trigger a breakpoint in the DLL.
+serial_test = "3"
+
+# oar-ocr 0.8.1 with PaddleKnife's patches: area-budgeted recognition batching
+# (the fix for DirectML out-of-memory on pages with very wide lines), per-call
+# batch/orientation overrides, and a word-box fix. Each patch and the reason
+# for it is in vendor/oar-ocr/PADDLEKNIFE_PATCHES.md. Remove this table and the
+# directory once upstream ships equivalents.
+[patch.crates-io]
+oar-ocr = { path = "vendor/oar-ocr" }
+
+# Dependencies (the vendored oar-ocr included) keep file:line backtraces but
+# drop variable and type info; our own crates keep full debug info. The
+# 2026-09-30 disk audit found 8.75 GB of .pdb files in one target/, because
+# every test binary and example links the whole ort + image + pdfium stack
+# with its own PDB. `cargo test` inherits this through the test profile.
+[profile.dev.package."*"]
+debug = "line-tables-only"
+
+[workspace.lints.rust]
+unsafe_code = "warn"
+
+[workspace.lints.clippy]
+unwrap_used = "warn"
+expect_used = "allow"
+panic = "warn"
+todo = "deny"

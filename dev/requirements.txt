@@ -1,0 +1,14 @@
+# Third-party packages imported by the Python evaluation tools in dev/.
+# The Rust CLI needs none of these. From the repository root:
+#   python -m venv .venv
+#   .venv\Scripts\activate            (Windows; `source .venv/bin/activate` elsewhere)
+#   pip install -r dev/requirements.txt
+
+numpy>=1.17                  # every tool (default_rng in degrade_bench.py)
+opencv-python-headless>=4.8  # cv2: compare_ocr, degrade_bench, ppocr_onnx, ppocr_viz; no GUI needed
+onnxruntime                  # ppocr_onnx.py, CPU execution provider
+pyclipper                    # ppocr_onnx.py: DBNet polygon unclip
+shapely                      # ppocr_onnx.py: polygon area and perimeter for the unclip distance
+Pillow                       # ppocr_viz.py: text panels
+pypdfium2>=4                 # compare_ocr.py and degrade_bench.py, PDF input only
+pymupdf>=1.19.2              # eval_box_accuracy.py (imported as fitz)

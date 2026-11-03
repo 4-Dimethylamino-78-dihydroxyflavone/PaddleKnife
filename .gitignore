@@ -1,0 +1,88 @@
+# ===== Rust =====
+# Cargo.lock is committed: this is a binary workspace, and a fresh resolve
+# can pick dependency versions that don't build together.
+/target
+**/*.rs.bk
+# vendor/oar-ocr is its own workspace root: `cargo test --manifest-path
+# vendor/oar-ocr/Cargo.toml` builds into, and resolves a lockfile in, it.
+/vendor/oar-ocr/target/
+/vendor/oar-ocr/Cargo.lock
+
+# ===== Python (dev/ evaluation tools) =====
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+.venv/
+venv/
+
+# ===== OS =====
+Thumbs.db
+.DS_Store
+
+# ===== PaddleKnife output =====
+*_paddleknife_OCR.txt
+*_paddleknife_OCR.pdf
+*_paddleknife_OCR.json
+*_paddleknife_OCR.md
+# Timestamped output from the retired Python tool
+*_paddleknife_OCR_*.pdf
+*_paddleknife_OCR_*.txt
+*_paddleknife_OCR_*.json
+*_paddleknife_OCR_*.md
+# Local scratch dir for manual test runs (e.g. --output overrides)
+/test-output/
+
+# ===== Editor =====
+.vscode/
+.idea/
+*.swp
+
+# ===== Claude Code local settings =====
+.claude/settings.local.json
+
+# ===== OCR model weights (downloaded, not checked in) =====
+models/pp-ocrv5_mobile_det.onnx
+models/pp-ocrv5_mobile_rec.onnx
+# Orientation classifiers (Plan 2.8+, oar-ocr release v0.3.0)
+models/pp-lcnet_x1_0_textline_ori.onnx
+models/pp-lcnet_x1_0_doc_ori.onnx
+# Multi-script recognizers (Plan 6) — fetched on demand via
+# `paddleknife models pull`; dict + ONNX always fetched together so the
+# pair stays matched. `.part` is the in-progress atomic-download temp.
+models/latin_PP-OCRv5_mobile_rec.onnx
+models/cyrillic_PP-OCRv5_mobile_rec.onnx
+models/eslav_PP-OCRv5_mobile_rec.onnx
+models/korean_PP-OCRv5_mobile_rec.onnx
+models/ppocrv5_latin_dict.txt
+models/ppocrv5_cyrillic_dict.txt
+models/ppocrv5_eslav_dict.txt
+models/ppocrv5_korean_dict.txt
+# PP-OCRv6 tiers (Plan 9) — detector + general recognizer per size tier,
+# fetched by `paddleknife models pull <script> --quality <tier>` from
+# oar-ocr's v0.7.0 release. Tiny pairs with its own smaller dictionary.
+models/pp-ocrv6_tiny_det.onnx
+models/pp-ocrv6_small_det.onnx
+models/pp-ocrv6_medium_det.onnx
+models/pp-ocrv6_tiny_rec.onnx
+models/pp-ocrv6_small_rec.onnx
+models/pp-ocrv6_medium_rec.onnx
+models/ppocrv6_dict.txt
+models/ppocrv6_tiny_dict.txt
+models/*.part
+
+# Scratch OCR comparison output from the dev/ evaluation tools.
+dev/out/
+
+# ===== Prebuilt PDFium (downloaded, not checked in) =====
+# Ignore everything under vendor/pdfium except the README that
+# documents how to re-download it.
+vendor/pdfium/*
+!vendor/pdfium/README.md
+
+# Stray hooks directory some worktrees got from a mis-pathed hooks config; not ours.
+dev/null/
+
+# ===== Local-only test fixtures (not redistributable) =====
+# Scans of printed books used for manual spot checks; keep them locally.
+tests/fixtures/MunaMadan_full.pdf

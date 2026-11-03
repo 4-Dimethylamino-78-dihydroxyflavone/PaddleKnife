@@ -1,0 +1,38 @@
+[package]
+name = "paddleknife"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+default-run = "paddleknife"
+
+[[bin]]
+name = "paddleknife"
+path = "src/main.rs"
+
+[dependencies]
+paddleknife-core = { path = "../paddleknife-core", default-features = false }
+anyhow.workspace = true
+clap.workspace = true
+image.workspace = true
+indicatif.workspace = true
+tracing.workspace = true
+tracing-subscriber.workspace = true
+
+[dev-dependencies]
+# Scratch dirs for the output-path tests, which need real directories
+# (path resolution branches on `is_dir`).
+tempfile.workspace = true
+
+[features]
+# Mirror paddleknife-core's ORT execution-provider features so that
+# `cargo build -p paddleknife --features cuda` (for example) picks up
+# the right EP all the way down the dep chain.
+default = ["directml"]
+directml = ["paddleknife-core/directml"]
+cuda = ["paddleknife-core/cuda"]
+coreml = ["paddleknife-core/coreml"]
+tensorrt = ["paddleknife-core/tensorrt"]
+openvino = ["paddleknife-core/openvino"]
+
+[lints]
+workspace = true

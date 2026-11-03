@@ -1,0 +1,68 @@
+[package]
+name = "paddleknife-core"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[dependencies]
+anyhow.workspace = true
+thiserror.workspace = true
+tracing.workspace = true
+image.workspace = true
+# OCR pipeline: Rust PP-OCR via ort (ONNX Runtime). Plan 1 uses the
+# default (CPU) config. Plan 4 adds DirectML via feature flags.
+# oar-ocr exposes ORT execution providers via pass-through features.
+# We don't pick any by default — paddleknife-core's feature flags below
+# re-export them, so downstream users can opt in/out via Cargo features.
+oar-ocr = { version = "0.8", default-features = false }
+pdfium-render = "0.9"
+serde.workspace = true
+serde_json.workspace = true
+# Searchable-PDF text layer (Plan 5): hand-authored PDF objects + content
+# streams so per-glyph /W advances and Td placement are possible (pdfium's
+# object API can't express per-glyph advances).
+pdf-writer = "0.15"
+# Grapheme-cluster grouping for char-box → CharSpan assembly.
+unicode-segmentation = "1"
+# Flate compression for PDF content streams.
+flate2 = "1"
+# Blocking HTTP for download-on-demand of recognizer models (rustls,
+# no async runtime). Plan 6.
+ureq = "3"
+# Checksums for downloaded models whose SHA-256 the registry knows. Already
+# in the build through lopdf, so this adds no new crate.
+sha2 = "0.10"
+# Read-only inspection of *source* PDFs for page-image passthrough
+# (Plan 8). lopdf never writes — pdf-writer remains the sole author.
+lopdf = "0.41"
+
+[features]
+# Default: DirectML (zero-install Windows path, any DX12 GPU).
+# Opt-in extras follow for NVIDIA / Mac / Intel-specific toolchains.
+#
+# Every EP feature also pulls in `download-binaries` so fresh clones
+# (and git worktrees) get a prebuilt ONNX Runtime from pyke's cache.
+# Without this, ort-sys's build script emits a `link_error` cfg and
+# the test/binary link step fails with unresolved OrtGetApiBase /
+# DMLCreateDevice1 symbols. Cached in %LOCALAPPDATA%\ort.pyke.io.
+default = ["directml", "simd"]
+directml = ["oar-ocr/directml", "oar-ocr/download-binaries", "simd"]
+cuda = ["oar-ocr/cuda", "oar-ocr/download-binaries", "simd"]
+coreml = ["oar-ocr/coreml", "oar-ocr/download-binaries", "simd"]
+tensorrt = ["oar-ocr/tensorrt", "oar-ocr/download-binaries", "simd"]
+openvino = ["oar-ocr/openvino", "oar-ocr/download-binaries", "simd"]
+
+# SIMD-accelerated CPU kernels (image normalization + CTC argmax decode).
+# oar-ocr 0.8 enables this in *its* defaults, but we build with
+# `default-features = false` to keep EP selection ours — so without this
+# re-add we'd silently ship the scalar fallback. oar-ocr documents the
+# SIMD path as bit-identical to scalar, so there is no accuracy tradeoff.
+# Every EP feature pulls it in; it also matters on the CPU fallback path.
+simd = ["oar-ocr/simd"]
+
+[dev-dependencies]
+tempfile.workspace = true
+serial_test.workspace = true
+
+[lints]
+workspace = true
